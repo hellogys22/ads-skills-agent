@@ -45,7 +45,7 @@ async def generate_content(
         tone=tone,
     )
     if not post.get("success"):
-        raise HTTPException(status_code=500, detail=post.get("error", "Generation failed"))
+        raise HTTPException(status_code=500, detail="Content generation failed")
 
     result = {"content": post.get("content", ""), "platform": platform}
     if include_hashtags:

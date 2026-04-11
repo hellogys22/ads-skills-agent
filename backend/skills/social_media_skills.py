@@ -48,11 +48,13 @@ async def post_to_facebook(content: str, page_id: str) -> dict[str, Any]:
     from utils.social_media_client import FacebookClient
 
     settings = get_settings()
+    # Use the Facebook page access token; fall back to empty string if not configured
+    fb_token = settings.facebook_page_access_token or ""
     client = FacebookClient(
         app_id=settings.facebook_app_id,
         app_secret=settings.facebook_app_secret,
         page_id=page_id,
-        page_access_token=settings.instagram_access_token,
+        page_access_token=fb_token,
     )
     try:
         result = await client.create_post(message=content)
@@ -131,7 +133,7 @@ async def get_platform_followers(platform: str) -> dict[str, Any]:
                 app_id=settings.facebook_app_id,
                 app_secret=settings.facebook_app_secret,
                 page_id=settings.facebook_page_id,
-                page_access_token=settings.instagram_access_token,
+                page_access_token=settings.facebook_page_access_token or "",
             )
             info = await client.get_page_info()
             await client.aclose()

@@ -3,7 +3,7 @@
 import hashlib
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -87,7 +87,7 @@ def parse_webhook_payload(payload: dict[str, Any]) -> dict[str, Any]:
         "entry_id": entry.get("id"),
         "field": changes.get("field"),
         "value": changes.get("value", {}),
-        "received_at": datetime.utcnow().isoformat(),
+        "received_at": datetime.now(timezone.utc).isoformat(),
     }
 
 

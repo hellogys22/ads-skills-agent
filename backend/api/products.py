@@ -71,7 +71,8 @@ async def get_product_performance(product_id: str):
     """Retrieve performance metrics for a specific product."""
     result = await calculate_affiliate_revenue(product_id)
     if not result.get("success"):
-        raise HTTPException(status_code=404, detail=result.get("error"))
+        # Return a generic message rather than leaking internal error details
+        raise HTTPException(status_code=404, detail="Product not found or no data available")
     return result
 
 
@@ -83,5 +84,5 @@ async def promote_product(
     """Generate promotional content for an affiliate product."""
     result = await create_product_promotion(product_id=product_id, platform=platform)
     if not result.get("success"):
-        raise HTTPException(status_code=404, detail=result.get("error"))
+        raise HTTPException(status_code=404, detail="Product not found or promotion failed")
     return result

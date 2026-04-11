@@ -58,7 +58,14 @@ async def optimize_campaign(campaign_id: str):
             "platforms": campaign.get("platforms", ["instagram"]),
         },
     )
-    return {"success": True, "campaign_id": campaign_id, "recommendations": result}
+    if not result.get("success"):
+        raise HTTPException(status_code=500, detail="Campaign optimisation failed")
+    # Return only safe, structured fields — not raw error strings
+    return {
+        "success": True,
+        "campaign_id": campaign_id,
+        "recommendations": result.get("trends") or result.get("plan") or "",
+    }
 
 
 @router.put("/update/{campaign_id}", response_model=Campaign)

@@ -1,7 +1,7 @@
 """Application configuration loaded from environment variables."""
 
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     facebook_app_id: str = Field(..., description="Facebook app ID")
     facebook_app_secret: str = Field(..., description="Facebook app secret")
     facebook_page_id: str = Field(..., description="Facebook page ID")
+    facebook_page_access_token: Optional[str] = Field(
+        None, description="Facebook page access token (can be obtained via OAuth)"
+    )
 
     # ── YouTube ───────────────────────────────────────────────────────────────
     youtube_api_key: str = Field(..., description="YouTube Data API v3 key")
