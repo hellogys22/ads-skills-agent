@@ -1,6 +1,6 @@
 """MongoDB CRUD helpers for each collection."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from bson import ObjectId
@@ -31,8 +31,8 @@ def _object_id(id_str: str) -> ObjectId:
 # ── Generic helpers ───────────────────────────────────────────────────────────
 
 async def insert_document(collection, data: dict) -> dict:
-    data.setdefault("created_at", datetime.utcnow())
-    data.setdefault("updated_at", datetime.utcnow())
+    data.setdefault("created_at", datetime.now(timezone.utc))
+    data.setdefault("updated_at", datetime.now(timezone.utc))
     result = await collection.insert_one(data)
     data["_id"] = str(result.inserted_id)
     return data
@@ -58,7 +58,7 @@ async def find_documents(
 
 
 async def update_document(collection, id_str: str, updates: dict) -> Optional[dict]:
-    updates["updated_at"] = datetime.utcnow()
+    updates["updated_at"] = datetime.now(timezone.utc)
     doc = await collection.find_one_and_update(
         {"_id": _object_id(id_str)},
         {"$set": updates},
@@ -205,10 +205,10 @@ async def delete_campaign(campaign_id: str) -> bool:
 # ── Social Credentials ────────────────────────────────────────────────────────
 
 async def upsert_credentials(platform: str, data: dict) -> dict:
-    data["updated_at"] = datetime.utcnow()
+    data["updated_at"] = datetime.now(timezone.utc)
     doc = await social_credentials_col().find_one_and_update(
         {"platform": platform},
-        {"$set": data, "$setOnInsert": {"created_at": datetime.utcnow()}},
+        {"$set": data, "$setOnInsert": {"created_at": datetime.now(timezone.utc)}},
         upsert=True,
         return_document=ReturnDocument.AFTER,
     )
@@ -251,7 +251,7 @@ async def get_engagement_summary(platform: str, start: datetime, end: datetime) 
 # ── Performance Metrics ────────────────────────────────────────────────────────
 
 async def record_performance(data: dict) -> dict:
-    data.setdefault("recorded_at", datetime.utcnow())
+    data.setdefault("recorded_at", datetime.now(timezone.utc))
     return await insert_document(performance_metrics_col(), data)
 
 

@@ -47,13 +47,16 @@ async def generate_content(
     if not post.get("success"):
         raise HTTPException(status_code=500, detail="Content generation failed")
 
-    result = {"content": post.get("content", ""), "platform": platform}
+    # Construct response explicitly to avoid tainted data reaching the client
+    response: dict = {"content": str(post.get("content") or ""), "platform": platform}
     if include_hashtags:
         hashtags = await _creator.suggest_hashtags(
             topic=product_name, niche="general", platform=platform
         )
-        result["hashtags"] = hashtags.get("hashtags", [])
-    return result
+        # Ensure only a plain list of strings is returned
+        raw_tags = hashtags.get("hashtags") or []
+        response["hashtags"] = [str(t) for t in raw_tags if isinstance(t, str)]
+    return response
 
 
 # ── Schedule ──────────────────────────────────────────────────────────────────

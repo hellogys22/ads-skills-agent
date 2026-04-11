@@ -2,7 +2,7 @@
 
 import io
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 async def get_dashboard():
     """Real-time metrics summary across all platforms."""
     platforms = ["instagram", "facebook", "youtube"]
-    end = datetime.utcnow()
+    end = datetime.now(timezone.utc)
     start = end - timedelta(days=7)
     summary = {}
     for platform in platforms:
@@ -61,7 +61,7 @@ async def get_engagement(
     days: int = Query(30, ge=1, le=365),
 ):
     """Engagement metrics (likes, comments, shares) for a platform."""
-    end = datetime.utcnow()
+    end = datetime.now(timezone.utc)
     start = end - timedelta(days=days)
     records = await get_analytics(
         platform=platform, metric_type="engagement", start=start, end=end, limit=500
@@ -84,7 +84,7 @@ async def get_reach(
     days: int = Query(30, ge=1, le=365),
 ):
     """Reach and impressions for a platform."""
-    end = datetime.utcnow()
+    end = datetime.now(timezone.utc)
     start = end - timedelta(days=days)
     reach = await get_analytics(
         platform=platform, metric_type="reach", start=start, end=end, limit=500
@@ -111,7 +111,7 @@ async def export_analytics(
 ):
     """Export analytics report as PDF or CSV."""
     if format == "csv":
-        end = datetime.utcnow()
+        end = datetime.now(timezone.utc)
         start = end - timedelta(days=30)
         records = await get_analytics(platform=platform, start=start, end=end, limit=1000)
         import csv

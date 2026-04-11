@@ -71,9 +71,18 @@ async def get_product_performance(product_id: str):
     """Retrieve performance metrics for a specific product."""
     result = await calculate_affiliate_revenue(product_id)
     if not result.get("success"):
-        # Return a generic message rather than leaking internal error details
         raise HTTPException(status_code=404, detail="Product not found or no data available")
-    return result
+    # Construct response from known-safe fields only
+    return {
+        "product_id": str(result.get("product_id") or ""),
+        "product_name": str(result.get("product_name") or ""),
+        "period": str(result.get("period") or "all_time"),
+        "total_revenue": float(result.get("total_revenue") or 0),
+        "total_clicks": int(result.get("total_clicks") or 0),
+        "total_conversions": int(result.get("total_conversions") or 0),
+        "earnings_per_click": float(result.get("earnings_per_click") or 0),
+        "conversion_rate": float(result.get("conversion_rate") or 0),
+    }
 
 
 @router.post("/promote/{product_id}")
@@ -85,4 +94,8 @@ async def promote_product(
     result = await create_product_promotion(product_id=product_id, platform=platform)
     if not result.get("success"):
         raise HTTPException(status_code=404, detail="Product not found or promotion failed")
-    return result
+    return {
+        "product_id": str(result.get("product_id") or ""),
+        "platform": str(result.get("platform") or platform),
+        "promotion": str(result.get("promotion") or ""),
+    }

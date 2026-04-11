@@ -1,7 +1,7 @@
 """OAuth connection endpoints for social platforms."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import httpx
@@ -50,7 +50,7 @@ async def instagram_callback(code: str = Query(...)):
             resp.raise_for_status()
             token_data = resp.json()
 
-        expires_at = datetime.utcnow() + timedelta(days=60)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=60)
         await upsert_credentials(
             "instagram",
             {
@@ -100,7 +100,7 @@ async def facebook_callback(code: str = Query(...)):
             token_data = resp.json()
 
         expires_in = token_data.get("expires_in", 5183944)
-        expires_at = datetime.utcnow() + timedelta(seconds=expires_in)
+        expires_at = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
         await upsert_credentials(
             "facebook",
             {
@@ -150,7 +150,7 @@ async def youtube_callback(code: str = Query(...)):
             resp.raise_for_status()
             token_data = resp.json()
 
-        expires_at = datetime.utcnow() + timedelta(seconds=token_data.get("expires_in", 3600))
+        expires_at = datetime.now(timezone.utc) + timedelta(seconds=token_data.get("expires_in", 3600))
         await upsert_credentials(
             "youtube",
             {
@@ -189,7 +189,7 @@ async def refresh_token(platform: str):
                 )
                 resp.raise_for_status()
                 new_tokens = resp.json()
-            expires_at = datetime.utcnow() + timedelta(seconds=new_tokens.get("expires_in", 3600))
+            expires_at = datetime.now(timezone.utc) + timedelta(seconds=new_tokens.get("expires_in", 3600))
             await upsert_credentials(platform, {"access_token": new_tokens["access_token"], "expires_at": expires_at})
             return MessageResponse(message=f"{platform} token refreshed successfully")
         raise HTTPException(status_code=400, detail=f"Token refresh not supported for {platform}")

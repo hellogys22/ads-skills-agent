@@ -1,7 +1,7 @@
 """Celery task definitions for background job processing."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from celery import Celery
 
@@ -61,7 +61,7 @@ def aggregate_analytics_task(self, days: int = 1):
     async def _run():
         from skills.analytics_skills import aggregate_daily_stats
 
-        end = datetime.utcnow()
+        end = datetime.now(timezone.utc)
         start = end - timedelta(days=days)
         results = {}
         for platform in ["instagram", "facebook", "youtube"]:
@@ -106,7 +106,7 @@ def auto_schedule_posts_task(self):
         from models.mongodb_models import get_scheduled_posts, update_post
         from skills.social_media_skills import post_to_instagram
 
-        posts = await get_scheduled_posts(before=datetime.utcnow())
+        posts = await get_scheduled_posts(before=datetime.now(timezone.utc))
         published = 0
         for post in posts:
             post_id = str(post.get("_id", ""))
@@ -119,7 +119,7 @@ def auto_schedule_posts_task(self):
                 status = "published" if result.get("success") else "failed"
                 await update_post(
                     post_id,
-                    {"status": status, "published_at": datetime.utcnow()},
+                    {"status": status, "published_at": datetime.now(timezone.utc)},
                 )
                 if result.get("success"):
                     published += 1

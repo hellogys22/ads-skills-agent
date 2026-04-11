@@ -1,7 +1,7 @@
 """Analytics skill functions for metrics collection and reporting."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from models.mongodb_models import get_analytics, get_performance_by_campaign
@@ -70,7 +70,7 @@ async def compare_platform_performance(
     platforms: list[str], metric: str, days: int = 30
 ) -> dict[str, Any]:
     """Compare a specific metric across multiple platforms."""
-    end = datetime.utcnow()
+    end = datetime.now(timezone.utc)
     start = end - timedelta(days=days)
     comparison: dict[str, float] = {}
     for platform in platforms:

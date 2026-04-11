@@ -1,7 +1,7 @@
 """Post scheduling skill functions."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from utils.helpers import calculate_best_posting_time
@@ -22,7 +22,7 @@ async def get_optimal_posting_times(
     best_hours = _PLATFORM_BEST_HOURS.get(platform.lower(), [9, 17])
     slots: list[dict] = []
     for day_offset in range(7):
-        base = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        base = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         base += timedelta(days=day_offset)
         for hour in best_hours:
             dt = base.replace(hour=hour)
@@ -53,7 +53,7 @@ async def create_content_calendar(
     from models.mongodb_models import create_post
 
     calendar: list[dict] = []
-    start_date = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     post_days = [i for i in range(7) if i % max(1, 7 // frequency) == 0]
 
     for week in range(weeks):
@@ -128,7 +128,7 @@ async def get_upcoming_schedule(days_ahead: int = 7) -> dict[str, Any]:
     """Fetch all posts scheduled within the next N days."""
     from models.mongodb_models import get_scheduled_posts
 
-    cutoff = datetime.utcnow() + timedelta(days=days_ahead)
+    cutoff = datetime.now(timezone.utc) + timedelta(days=days_ahead)
     posts = await get_scheduled_posts(before=cutoff)
     return {
         "success": True,

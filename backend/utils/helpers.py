@@ -30,13 +30,13 @@ _PLATFORM_BEST_HOURS: dict[str, list[int]] = {
 }
 
 
-def calculate_best_posting_time(timezone: str, platform: str) -> datetime:
+def calculate_best_posting_time(tz_name: str, platform: str) -> datetime:
     """
     Return the next upcoming optimal posting time for the platform
     in the given IANA timezone string (e.g. 'America/New_York').
     """
     try:
-        tz = ZoneInfo(timezone)
+        tz = ZoneInfo(tz_name)
     except Exception:
         tz = ZoneInfo("UTC")
 

@@ -1,7 +1,7 @@
 """APScheduler background job definitions."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -41,7 +41,7 @@ async def _daily_analytics_aggregation_job() -> None:
 
         from skills.analytics_skills import aggregate_daily_stats
 
-        yesterday_end = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        yesterday_end = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         yesterday_start = yesterday_end - timedelta(days=1)
         for platform in ["instagram", "facebook", "youtube"]:
             await aggregate_daily_stats(platform, (yesterday_start, yesterday_end))
@@ -67,7 +67,7 @@ async def _auto_post_scheduling_job() -> None:
         from models.mongodb_models import get_scheduled_posts, update_post
         from skills.social_media_skills import post_to_instagram
 
-        due_posts = await get_scheduled_posts(before=datetime.utcnow())
+        due_posts = await get_scheduled_posts(before=datetime.now(timezone.utc))
         for post in due_posts:
             post_id = str(post.get("_id", ""))
             platform = post.get("platform", "")
@@ -84,7 +84,7 @@ async def _auto_post_scheduling_job() -> None:
                         post_id,
                         {
                             "status": status,
-                            "published_at": datetime.utcnow(),
+                            "published_at": datetime.now(timezone.utc),
                             "external_post_id": result.get("post_id"),
                             "error_message": error,
                         },

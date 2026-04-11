@@ -1,7 +1,7 @@
 """CrewAI Analytics Agent — tracks and reports engagement metrics."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from crewai import Agent, Task
@@ -91,7 +91,7 @@ class AnalyticsAgent:
     ) -> dict[str, Any]:
         """Analyse overall performance for the past N days."""
         try:
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             start = end - timedelta(days=days)
             metrics = ["impressions", "reach", "engagement", "clicks"]
             results: dict[str, Any] = {"platform": platform, "period_days": days}
@@ -113,7 +113,7 @@ class AnalyticsAgent:
     ) -> dict[str, Any]:
         """Generate an AI-narrated performance report for a campaign."""
         try:
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             start = end - timedelta(days=30)
             data = await get_analytics(platform=platform, start=start, end=end)
             summary_prompt = (
@@ -135,8 +135,8 @@ class AnalyticsAgent:
     async def get_daily_summary(self, platform: str) -> dict[str, Any]:
         """Return engagement summary for today."""
         try:
-            today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-            summary = await get_engagement_summary(platform, today, datetime.utcnow())
+            today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+            summary = await get_engagement_summary(platform, today, datetime.now(timezone.utc))
             return {"success": True, "platform": platform, "summary": summary, "date": today.date().isoformat()}
         except Exception as exc:
             logger.error("get_daily_summary failed: %s", exc)

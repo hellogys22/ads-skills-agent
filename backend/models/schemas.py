@@ -1,6 +1,6 @@
 """Pydantic schemas for request / response validation."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
@@ -80,8 +80,8 @@ class ContentPostCreate(BaseModel):
 
 class ContentPost(ContentPostCreate, MongoBase):
     status: PostStatus = PostStatus.DRAFT
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     published_at: Optional[datetime] = None
     external_post_id: Optional[str] = None
     error_message: Optional[str] = None
@@ -95,7 +95,7 @@ class AnalyticsDataCreate(BaseModel):
     value: float
     post_id: Optional[str] = None
     campaign_id: Optional[str] = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class AnalyticsData(AnalyticsDataCreate, MongoBase):
@@ -119,8 +119,8 @@ class AffiliateProduct(AffiliateProductCreate, MongoBase):
     total_clicks: int = 0
     total_conversions: int = 0
     total_revenue: float = 0.0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── Campaign ──────────────────────────────────────────────────────────────────
@@ -139,8 +139,8 @@ class CampaignCreate(BaseModel):
 class Campaign(CampaignCreate, MongoBase):
     status: CampaignStatus = CampaignStatus.DRAFT
     spent: float = 0.0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── UserEngagement ────────────────────────────────────────────────────────────
@@ -151,7 +151,7 @@ class UserEngagementCreate(BaseModel):
     action_type: ActionType
     post_id: Optional[str] = None
     metadata: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class UserEngagement(UserEngagementCreate, MongoBase):
@@ -172,8 +172,8 @@ class SocialCredentialsCreate(BaseModel):
 
 class SocialCredentials(SocialCredentialsCreate, MongoBase):
     connected: bool = True
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ── AgentTask ─────────────────────────────────────────────────────────────────
@@ -187,7 +187,7 @@ class AgentTask(AgentTaskCreate, MongoBase):
     status: TaskStatus = TaskStatus.PENDING
     result: Optional[dict[str, Any]] = None
     error: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 

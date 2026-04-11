@@ -1,7 +1,7 @@
 """CrewAI Strategy Agent — campaign planning and content calendar."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from crewai import Agent, Task
@@ -117,7 +117,7 @@ class StrategyAgent:
         base_hours = self._PLATFORM_BEST_HOURS.get(platform.lower(), [9, 12, 17, 20])
         slots = []
         for day_offset in range(7):
-            day = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            day = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
             day += timedelta(days=day_offset)
             for hour in base_hours:
                 slots.append(
