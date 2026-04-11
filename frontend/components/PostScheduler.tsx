@@ -11,6 +11,18 @@ const PLATFORMS = [
   { id: 'youtube',   label: 'YouTube',   color: 'border-red-500  text-red-400   bg-red-900/20'   },
 ] as const
 
+const PLATFORM_CHAR_LIMITS: Record<string, number> = {
+  instagram: 2200,
+  facebook:  63206,
+  youtube:   5000,
+}
+
+function getCharLimit(platforms: string[]): number {
+  if (platforms.length === 0) return 5000
+  return platforms.reduce((min, p) => Math.min(min, PLATFORM_CHAR_LIMITS[p] ?? 5000), Infinity)
+}
+
+
 interface PostSchedulerProps {
   initialContent?: string
   onScheduled?: () => void
@@ -24,7 +36,7 @@ export default function PostScheduler({ initialContent = '', onScheduled }: Post
   const [loading, setLoading]     = useState(false)
   const [hasImage, setHasImage]   = useState(false)
 
-  const charLimit = selectedPlatforms.includes('instagram') ? 2200 : selectedPlatforms.includes('facebook') ? 63206 : 5000
+  const charLimit = getCharLimit(selectedPlatforms)
   const charCount = content.length
 
   function togglePlatform(id: string) {

@@ -64,10 +64,11 @@ export default function SettingsPage() {
   }
 
   function togglePlatform(id: string) {
+    const platform = platforms.find((p) => p.id === id)
     setPlatforms((prev) => prev.map((p) =>
       p.id === id ? { ...p, connected: !p.connected } : p
     ))
-    const platform = platforms.find((p) => p.id === id)
+    // platform.connected reflects the *current* state; after the toggle it will be inverted
     toast.success(platform?.connected ? `Disconnected from ${platform.name}` : `Connected to ${platform?.name}!`)
   }
 
